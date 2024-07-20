@@ -59,7 +59,7 @@ export class AuthService {
       throw new ForbiddenException('Login failed');
     }
 
-    res.cookie('jwt', tokenJWT, {
+    res.cookie('token', tokenJWT, {
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000,
     });
@@ -68,7 +68,7 @@ export class AuthService {
   }
 
   async logout(req: Request, res: Response) {
-    res.clearCookie('jwt');
+    res.clearCookie('token');
     return res.send({ message: 'logout success' });
   }
 
