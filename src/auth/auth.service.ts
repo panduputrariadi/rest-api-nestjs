@@ -4,7 +4,7 @@ import {
   HttpStatus,
   Injectable,
 } from '@nestjs/common';
-import { AuthDTO } from './dto/auth.dto';
+import { AuthDTO, LoginDTO } from './dto/auth.dto';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
@@ -18,7 +18,7 @@ export class AuthService {
     private jwt: JwtService,
   ) {}
   async register(dto: AuthDTO) {
-    const { email, password } = dto;
+    const { email, password, role, name } = dto;
 
     const foundUser = await this.prisma.user.findUnique({ where: { email } });
     if (foundUser) {
@@ -27,7 +27,7 @@ export class AuthService {
 
     const hashingPassword = await this.hashPassword(password);
     await this.prisma.user.create({
-      data: { email, password: hashingPassword },
+      data: { email, role, name, password: hashingPassword },
     });
     return {
       HttpStatus: HttpStatus.CREATED,
@@ -35,7 +35,7 @@ export class AuthService {
     };
   }
 
-  async login(dto: AuthDTO, req: Request, res: Response) {
+  async login(dto: LoginDTO, req: Request, res: Response) {
     const { email, password } = dto;
     const findUser = await this.prisma.user.findUnique({ where: { email } });
     if (!findUser) {
