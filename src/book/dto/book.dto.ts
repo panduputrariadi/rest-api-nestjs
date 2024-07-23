@@ -1,53 +1,69 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsNumber,
+  IsUUID,
+  IsArray,
+  ArrayNotEmpty,
+} from 'class-validator';
 
 export class createBookDTO {
-  @IsNotEmpty()
   @IsString()
+  @IsNotEmpty()
   title: string;
 
-  @IsNotEmpty()
   @IsString()
-  description: string;
+  @IsOptional()
+  description?: string;
 
-  @IsNotEmpty()
   @IsNumber()
+  @IsNotEmpty()
   price: number;
 
-  @IsNotEmpty()
   @IsNumber()
-  stock: number;
+  @IsOptional()
+  stock?: number;
 
+  @IsUUID()
   @IsNotEmpty()
-  @IsString()
   authorId: string;
 
+  @IsUUID()
   @IsNotEmpty()
-  @IsString()
   categoryId: string;
+
+  @IsArray()
+  @ArrayNotEmpty()
+  genreIds: string[];
 }
 
 export class updateBookDTO {
-  @IsOptional()
   @IsString()
-  readonly title?: string;
-
   @IsOptional()
+  title?: string;
+
   @IsString()
-  readonly description?: string;
-
   @IsOptional()
+  description?: string;
+
   @IsNumber()
-  readonly price?: number;
-
   @IsOptional()
+  price?: number;
+
   @IsNumber()
-  readonly stock?: number;
-
   @IsOptional()
-  @IsString()
-  readonly authorId?: string;
+  stock?: number;
 
+  @IsUUID()
   @IsOptional()
-  @IsString()
-  readonly categoryId?: string;
+  authorId?: string;
+
+  @IsUUID()
+  @IsOptional()
+  categoryId?: string;
+
+  @IsArray()
+  @IsOptional()
+  genreIds: string[];
 }
