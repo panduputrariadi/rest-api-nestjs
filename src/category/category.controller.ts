@@ -10,36 +10,37 @@ import {
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { createCategoryDTO } from './dto/category.dto';
+import { JwtAuthGuard } from 'src/auth/jwt.guard';
 
 @Controller('category')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
-  @UseGuards()
+  @UseGuards(JwtAuthGuard)
   @Get()
   findAllCategory() {
     return this.categoryService.findAllCategory();
   }
 
-  @UseGuards()
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   findCategoryById(@Param('id') id: string) {
     return this.categoryService.findCategoryById(id);
   }
 
-  @UseGuards()
+  @UseGuards(JwtAuthGuard)
   @Post()
   createCategory(@Body() dto: createCategoryDTO) {
     return this.categoryService.createCategory(dto);
   }
 
-  @UseGuards()
+  @UseGuards(JwtAuthGuard)
   @Put(':id')
   updateCategory(@Param('id') id: string, @Body() dto: createCategoryDTO) {
     return this.categoryService.updateCategory(id, dto);
   }
 
-  @UseGuards()
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   deleteCategory(@Param('id') id: string) {
     return this.categoryService.deleteCategory(id);

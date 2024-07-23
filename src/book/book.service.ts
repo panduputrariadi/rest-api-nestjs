@@ -11,6 +11,11 @@ export class BookService {
       include: {
         author: true,
         category: true,
+        Genres: {
+          include: {
+            genre: true,
+          },
+        },
       },
     });
 
@@ -30,6 +35,11 @@ export class BookService {
       include: {
         author: true,
         category: true,
+        Genres: {
+          include: {
+            genre: true,
+          },
+        },
       },
     });
     if (!book) {
@@ -42,14 +52,12 @@ export class BookService {
   }
 
   async createBook(dto: createBookDTO) {
-    const { title, description, price, stock, authorId, categoryId } = dto;
-
-    if (!authorId || !categoryId) {
-      throw new NotFoundException('Author or Category not found');
-    }
+    const { title, description, price, stock, authorId, categoryId, genreIds } =
+      dto;
 
     await this.checkAuthorExists(authorId);
     await this.checkCategoryExists(categoryId);
+    await this.checkGenresExist(genreIds);
 
     const newBook = await this.prisma.book.create({
       data: {
@@ -59,6 +67,18 @@ export class BookService {
         stock,
         authorId,
         categoryId,
+        Genres: {
+          create: genreIds.map((id) => ({
+            genre: { connect: { id } },
+          })),
+        },
+      },
+      include: {
+        Genres: {
+          include: {
+            genre: true,
+          },
+        },
       },
     });
 
@@ -69,7 +89,8 @@ export class BookService {
   }
 
   async updateBook(id: string, dto: updateBookDTO) {
-    const { title, description, price, stock, authorId, categoryId } = dto;
+    const { title, description, price, stock, authorId, categoryId, genreIds } =
+      dto;
 
     const book = await this.prisma.book.findUnique({
       where: { id },
@@ -79,12 +100,17 @@ export class BookService {
       throw new NotFoundException('Book not found');
     }
 
-    if (!authorId || !categoryId) {
-      throw new NotFoundException('Author or Category not found');
+    if (authorId) {
+      await this.checkAuthorExists(authorId);
     }
 
-    await this.checkAuthorExists(authorId);
-    await this.checkCategoryExists(categoryId);
+    if (categoryId) {
+      await this.checkCategoryExists(categoryId);
+    }
+
+    if (genreIds) {
+      await this.checkGenresExist(genreIds);
+    }
 
     const updatedBook = await this.prisma.book.update({
       where: { id },
@@ -95,6 +121,21 @@ export class BookService {
         stock,
         authorId,
         categoryId,
+        Genres: genreIds
+          ? {
+              deleteMany: {},
+              create: genreIds.map((id) => ({
+                genre: { connect: { id } },
+              })),
+            }
+          : undefined,
+      },
+      include: {
+        Genres: {
+          include: {
+            genre: true,
+          },
+        },
       },
     });
 
@@ -131,6 +172,16 @@ export class BookService {
 
     if (!categoryExists) {
       throw new NotFoundException('Category not found');
+    }
+  }
+
+  private async checkGenresExist(genreIds: string[]) {
+    const genres = await this.prisma.genre.findMany({
+      where: { id: { in: genreIds } },
+    });
+
+    if (genres.length !== genreIds.length) {
+      throw new NotFoundException('One or more genres not found');
     }
   }
 }

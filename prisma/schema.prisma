@@ -49,4 +49,25 @@ model Book {
 
   category Category @relation(fields: [categoryId], references: [id])
   author   Author   @relation(fields: [authorId], references: [id])
+  Genres BookGenres[]
+}
+
+model Genre {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  Book BookGenres[]
+}
+
+model BookGenres {
+  bookId    String
+  genreId   String
+  createdAt DateTime @default(now())
+
+  book  Book  @relation(fields: [bookId], references: [id])
+  genre Genre @relation(fields: [genreId], references: [id])
+
+  @@id([bookId, genreId])
 }
