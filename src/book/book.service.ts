@@ -51,9 +51,24 @@ export class BookService {
     };
   }
 
-  async createBook(dto: createBookDTO) {
-    const { title, description, price, stock, authorId, categoryId, genreIds } =
-      dto;
+  async createBook(dto: createBookDTO, coverUrl: string) {
+    const {
+      title,
+      description,
+      price,
+      stock,
+      authorId,
+      categoryId,
+      genreIds,
+      status,
+      language,
+      totalPages,
+      weight,
+      height,
+      width,
+      publisher,
+      publishedDate,
+    } = dto;
 
     await this.checkAuthorExists(authorId);
     await this.checkCategoryExists(categoryId);
@@ -67,6 +82,15 @@ export class BookService {
         stock,
         authorId,
         categoryId,
+        status,
+        language,
+        cover: coverUrl,
+        totalPages,
+        weight,
+        height,
+        width,
+        publisher,
+        publishedDate,
         Genres: {
           create: genreIds.map((id) => ({
             genre: { connect: { id } },

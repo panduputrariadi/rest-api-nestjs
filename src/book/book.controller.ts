@@ -3,14 +3,20 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Post,
   Put,
+  Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { BookService } from './book.service';
 import { createBookDTO, updateBookDTO } from './dto/book.dto';
 import { JwtAuthGuard } from 'src/auth/jwt.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Request } from 'express';
 
 @Controller('book')
 export class BookController {
@@ -30,8 +36,17 @@ export class BookController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  createBook(@Body() dto: createBookDTO) {
-    return this.bookService.createBook(dto);
+  @UseInterceptors(FileInterceptor('cover'))
+  async createBook(
+    @Body() createBookDto: createBookDTO,
+    @UploadedFile() file: Express.Multer.File,
+    @Req() req: Request,
+  ) {
+    if (!file) {
+      throw new NotFoundException('Cover image is required');
+    }
+    const coverUrl = `${req.protocol}://${req.get('host')}/uploads/${file.filename}`;
+    return this.bookService.createBook(createBookDto, coverUrl);
   }
 
   @UseGuards(JwtAuthGuard)
