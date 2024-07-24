@@ -7,6 +7,13 @@ import { BookModule } from './book/book.module';
 import { GenreModule } from './genre/genre.module';
 
 @Module({
-  imports: [AuthModule, UsersModule, CategoryModule, AuthorModule, BookModule, GenreModule],
+  imports: [
+    AuthModule,
+    UsersModule,
+    CategoryModule,
+    AuthorModule,
+    BookModule,
+    GenreModule,
+  ],
 })
 export class AppModule {}

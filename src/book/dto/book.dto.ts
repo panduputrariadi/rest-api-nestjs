@@ -3,7 +3,6 @@ import {
   IsOptional,
   IsString,
   IsNumber,
-  IsUUID,
   IsArray,
   ArrayNotEmpty,
 } from 'class-validator';
@@ -25,11 +24,11 @@ export class createBookDTO {
   @IsOptional()
   stock?: number;
 
-  @IsUUID()
+  @IsString()
   @IsNotEmpty()
   authorId: string;
 
-  @IsUUID()
+  @IsString()
   @IsNotEmpty()
   categoryId: string;
 
@@ -55,11 +54,11 @@ export class updateBookDTO {
   @IsOptional()
   stock?: number;
 
-  @IsUUID()
+  @IsString()
   @IsOptional()
   authorId?: string;
 
-  @IsUUID()
+  @IsString()
   @IsOptional()
   categoryId?: string;
 

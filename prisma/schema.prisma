@@ -47,9 +47,10 @@ model Book {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  category Category @relation(fields: [categoryId], references: [id])
-  author   Author   @relation(fields: [authorId], references: [id])
-  Genres BookGenres[]
+  category  Category     @relation(fields: [categoryId], references: [id])
+  author    Author       @relation(fields: [authorId], references: [id])
+  Genres    BookGenres[]
+  imageBook ImageBook[]
 }
 
 model Genre {
@@ -70,4 +71,16 @@ model BookGenres {
   genre Genre @relation(fields: [genreId], references: [id])
 
   @@id([bookId, genreId])
+}
+
+model ImageBook {
+  id        String   @id @default(uuid())
+  url       String
+  bookId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  book Book @relation(fields: [bookId], references: [id])
+
+  @@index([bookId])
 }
