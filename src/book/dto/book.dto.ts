@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import {
   IsNotEmpty,
   IsOptional,
@@ -16,10 +17,12 @@ export class createBookDTO {
   @IsOptional()
   description?: string;
 
+  @Transform(({ value }) => parseInt(value, 10))
   @IsNumber()
   @IsNotEmpty()
   price: number;
 
+  @Transform(({ value }) => parseInt(value, 10))
   @IsNumber()
   @IsOptional()
   stock?: number;

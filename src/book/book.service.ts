@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { createBookDTO, updateBookDTO } from './dto/book.dto';
+import { Express } from 'express';
 
 @Injectable()
 export class BookService {
@@ -16,6 +17,7 @@ export class BookService {
             genre: true,
           },
         },
+        imageBook: true,
       },
     });
 
@@ -40,6 +42,7 @@ export class BookService {
             genre: true,
           },
         },
+        imageBook: true,
       },
     });
     if (!book) {
@@ -51,13 +54,21 @@ export class BookService {
     };
   }
 
-  async createBook(dto: createBookDTO) {
+  async createBook(
+    dto: createBookDTO,
+    images: Express.Multer.File[],
+    baseUrl: string,
+  ) {
     const { title, description, price, stock, authorId, categoryId, genreIds } =
       dto;
 
     await this.checkAuthorExists(authorId);
     await this.checkCategoryExists(categoryId);
     await this.checkGenresExist(genreIds);
+
+    const imageRecords = images.map((file) => ({
+      url: `${baseUrl}/uploads/${file.filename}`,
+    }));
 
     const newBook = await this.prisma.book.create({
       data: {
@@ -72,6 +83,9 @@ export class BookService {
             genre: { connect: { id } },
           })),
         },
+        imageBook: {
+          create: imageRecords,
+        },
       },
       include: {
         Genres: {
@@ -79,6 +93,7 @@ export class BookService {
             genre: true,
           },
         },
+        imageBook: true,
       },
     });
 
@@ -88,7 +103,12 @@ export class BookService {
     };
   }
 
-  async updateBook(id: string, dto: updateBookDTO) {
+  async updateBook(
+    id: string,
+    dto: updateBookDTO,
+    images?: Express.Multer.File[],
+    baseUrl?: string,
+  ) {
     const { title, description, price, stock, authorId, categoryId, genreIds } =
       dto;
 
@@ -100,17 +120,17 @@ export class BookService {
       throw new NotFoundException('Book not found');
     }
 
-    if (authorId) {
-      await this.checkAuthorExists(authorId);
-    }
+    await this.checkAuthorExists(authorId);
+    await this.checkCategoryExists(categoryId);
+    await this.checkGenresExist(genreIds);
 
-    if (categoryId) {
-      await this.checkCategoryExists(categoryId);
-    }
+    await this.prisma.imageBook.deleteMany({
+      where: { bookId: id },
+    });
 
-    if (genreIds) {
-      await this.checkGenresExist(genreIds);
-    }
+    const imageRecords =
+      images?.map((file) => ({ url: `${baseUrl}/uploads/${file.filename}` })) ||
+      [];
 
     const updatedBook = await this.prisma.book.update({
       where: { id },
@@ -129,6 +149,13 @@ export class BookService {
               })),
             }
           : undefined,
+        imageBook:
+          imageRecords.length > 0
+            ? {
+                deleteMany: {},
+                create: imageRecords,
+              }
+            : undefined,
       },
       include: {
         Genres: {
@@ -136,6 +163,7 @@ export class BookService {
             genre: true,
           },
         },
+        imageBook: true,
       },
     });
 
@@ -146,6 +174,13 @@ export class BookService {
   }
 
   async deleteBook(id: string) {
+    await this.prisma.bookGenres.deleteMany({
+      where: { bookId: id },
+    });
+
+    await this.prisma.imageBook.deleteMany({
+      where: { bookId: id },
+    });
     const deletedBook = await this.prisma.book.delete({
       where: { id },
     });
