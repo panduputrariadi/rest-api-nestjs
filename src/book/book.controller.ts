@@ -26,13 +26,13 @@ export class BookController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  findAllBook() {
+  async findAllBook() {
     return this.bookService.findAllBook();
   }
 
   @UseGuards(JwtAuthGuard)
   @Get(':id')
-  findBookById(@Param('id') id: string) {
+  async findBookById(@Param('id') id: string) {
     return this.bookService.findBookById(id);
   }
 
@@ -42,7 +42,8 @@ export class BookController {
       storage: diskStorage({
         destination: './uploads',
         filename: (req, file, callback) => {
-          const fileName = `${Date.now()}${extname(file.originalname)}`;
+          const bookTitle = req.body.title;
+          const fileName = `${bookTitle}-${Date.now()}${extname(file.originalname)}`;
           callback(null, fileName);
         },
       }),
@@ -66,7 +67,8 @@ export class BookController {
       storage: diskStorage({
         destination: './uploads',
         filename: (req, file, callback) => {
-          const fileName = `${Date.now()}${extname(file.originalname)}`;
+          const bookTitle = req.body.title;
+          const fileName = `update-${bookTitle}-${Date.now()}${extname(file.originalname)}`;
           callback(null, fileName);
         },
       }),
@@ -84,7 +86,7 @@ export class BookController {
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  deleteBook(@Param('id') id: string) {
+  async deleteBook(@Param('id') id: string) {
     return this.bookService.deleteBook(id);
   }
 }

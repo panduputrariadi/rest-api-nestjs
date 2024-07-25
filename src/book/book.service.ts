@@ -2,6 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { createBookDTO, updateBookDTO } from './dto/book.dto';
 import { Express } from 'express';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class BookService {
@@ -10,11 +12,23 @@ export class BookService {
   async findAllBook() {
     const books = await this.prisma.book.findMany({
       include: {
-        author: true,
-        category: true,
+        author: {
+          select: {
+            name: true,
+          },
+        },
+        category: {
+          select: {
+            name: true,
+          },
+        },
         Genres: {
           include: {
-            genre: true,
+            genre: {
+              select: {
+                name: true,
+              },
+            },
           },
         },
         imageBook: true,
@@ -94,6 +108,8 @@ export class BookService {
           },
         },
         imageBook: true,
+        author: true,
+        category: true,
       },
     });
 
@@ -124,8 +140,28 @@ export class BookService {
     await this.checkCategoryExists(categoryId);
     await this.checkGenresExist(genreIds);
 
+    const oldImages = await this.prisma.imageBook.findMany({
+      where: { bookId: id },
+    });
+
     await this.prisma.imageBook.deleteMany({
       where: { bookId: id },
+    });
+
+    oldImages.forEach((image) => {
+      const filePath = path.join(
+        __dirname,
+        '..',
+        '..',
+        '..',
+        'uploads',
+        path.basename(image.url),
+      );
+      fs.unlink(filePath, (err) => {
+        if (err) {
+          console.error(`Failed to delete image file: ${filePath}`, err);
+        }
+      });
     });
 
     const imageRecords =
@@ -174,6 +210,26 @@ export class BookService {
   }
 
   async deleteBook(id: string) {
+    const images = await this.prisma.imageBook.findMany({
+      where: { bookId: id },
+    });
+
+    images.forEach((image) => {
+      const filePath = path.join(
+        __dirname,
+        '..',
+        '..',
+        '..',
+        'uploads',
+        path.basename(image.url),
+      );
+      fs.unlink(filePath, (err) => {
+        if (err) {
+          console.error(`Failed to delete image file: ${filePath}`, err);
+        }
+      });
+    });
+
     await this.prisma.bookGenres.deleteMany({
       where: { bookId: id },
     });

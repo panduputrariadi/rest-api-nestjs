@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -37,5 +38,11 @@ export class GenreController {
   @Put(':id')
   async updateGenre(@Param('id') id: string, @Body() dto: updateGenreDTO) {
     return this.genreService.updateGenre(id, dto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  async deleteGenre(@Param('id') id: string) {
+    return this.genreService.deleteGenre(id);
   }
 }
