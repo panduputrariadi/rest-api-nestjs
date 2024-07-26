@@ -6,6 +6,7 @@ import {
   IsNumber,
   IsArray,
   ArrayNotEmpty,
+  IsDateString,
 } from 'class-validator';
 
 export class createBookDTO {
@@ -17,7 +18,7 @@ export class createBookDTO {
   @IsOptional()
   description?: string;
 
-  @Transform(({ value }) => parseInt(value, 10))
+  @Transform(({ value }) => parseInt(value))
   @IsNumber()
   @IsNotEmpty()
   price: number;
@@ -38,6 +39,38 @@ export class createBookDTO {
   @IsArray()
   @ArrayNotEmpty()
   genreIds: string[];
+
+  @Transform(({ value }) => parseFloat(value))
+  @IsNumber()
+  @IsNotEmpty()
+  weight: number;
+
+  @Transform(({ value }) => parseFloat(value))
+  @IsNumber()
+  @IsNotEmpty()
+  height: number;
+
+  @Transform(({ value }) => parseFloat(value))
+  @IsNumber()
+  @IsNotEmpty()
+  width: number;
+
+  @Transform(({ value }) => parseInt(value, 10))
+  @IsNumber()
+  @IsNotEmpty()
+  totalPages: number;
+
+  @IsString()
+  @IsNotEmpty()
+  publisher: string;
+
+  @IsDateString()
+  @IsNotEmpty()
+  publishedAt: string;
+
+  @IsString()
+  @IsNotEmpty()
+  language: string;
 }
 
 export class updateBookDTO {
@@ -70,4 +103,36 @@ export class updateBookDTO {
   @IsArray()
   @IsOptional()
   genreIds: string[];
+
+  @Transform(({ value }) => parseFloat(value))
+  @IsNumber()
+  @IsOptional()
+  weight: number;
+
+  @Transform(({ value }) => parseFloat(value))
+  @IsNumber()
+  @IsOptional()
+  height: number;
+
+  @Transform(({ value }) => parseFloat(value))
+  @IsNumber()
+  @IsOptional()
+  width: number;
+
+  @Transform(({ value }) => parseInt(value, 10))
+  @IsNumber()
+  @IsOptional()
+  totalPages: number;
+
+  @IsString()
+  @IsOptional()
+  publisher: string;
+
+  @IsDateString()
+  @IsOptional()
+  publishedAt: string;
+
+  @IsString()
+  @IsOptional()
+  language: string;
 }
