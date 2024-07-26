@@ -73,8 +73,22 @@ export class BookService {
     images: Express.Multer.File[],
     baseUrl: string,
   ) {
-    const { title, description, price, stock, authorId, categoryId, genreIds } =
-      dto;
+    const {
+      title,
+      description,
+      price,
+      stock,
+      authorId,
+      categoryId,
+      genreIds,
+      weight,
+      height,
+      width,
+      totalPages,
+      publisher,
+      publishedAt,
+      language,
+    } = dto;
 
     await this.checkAuthorExists(authorId);
     await this.checkCategoryExists(categoryId);
@@ -92,6 +106,13 @@ export class BookService {
         stock,
         authorId,
         categoryId,
+        weight,
+        height,
+        width,
+        totalPages,
+        publisher,
+        publishedAt,
+        language,
         Genres: {
           create: genreIds.map((id) => ({
             genre: { connect: { id } },
@@ -125,8 +146,22 @@ export class BookService {
     images?: Express.Multer.File[],
     baseUrl?: string,
   ) {
-    const { title, description, price, stock, authorId, categoryId, genreIds } =
-      dto;
+    const {
+      title,
+      description,
+      price,
+      stock,
+      authorId,
+      categoryId,
+      genreIds,
+      weight,
+      height,
+      width,
+      totalPages,
+      publisher,
+      publishedAt,
+      language,
+    } = dto;
 
     const book = await this.prisma.book.findUnique({
       where: { id },
@@ -177,6 +212,13 @@ export class BookService {
         stock,
         authorId,
         categoryId,
+        weight,
+        height,
+        width,
+        totalPages,
+        publisher,
+        publishedAt,
+        language,
         Genres: genreIds
           ? {
               deleteMany: {},
