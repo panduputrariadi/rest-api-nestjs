@@ -8,13 +8,13 @@ import {
   Post,
   Put,
   UploadedFiles,
-  UseGuards,
+  // UseGuards,
   UseInterceptors,
   Req,
 } from '@nestjs/common';
 import { BookService } from './book.service';
 import { createBookDTO, updateBookDTO } from './dto/book.dto';
-import { JwtAuthGuard } from 'src/auth/jwt.guard';
+// import { JwtAuthGuard } from 'src/auth/jwt.guard';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
@@ -24,13 +24,13 @@ import { Request } from 'express';
 export class BookController {
   constructor(private readonly bookService: BookService) {}
 
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @Get()
   async findAllBook() {
     return this.bookService.findAllBook();
   }
 
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findBookById(@Param('id') id: string) {
     return this.bookService.findBookById(id);
@@ -42,7 +42,7 @@ export class BookController {
       storage: diskStorage({
         destination: './uploads',
         filename: (req, file, callback) => {
-          const bookTitle = req.body.title;
+          const bookTitle = req.body.title.replace(/ /g, '-');
           const fileName = `${bookTitle}-${Date.now()}${extname(file.originalname)}`;
           callback(null, fileName);
         },
@@ -67,7 +67,7 @@ export class BookController {
       storage: diskStorage({
         destination: './uploads',
         filename: (req, file, callback) => {
-          const bookTitle = req.body.title;
+          const bookTitle = req.body.title.replace(/ /g, '-');
           const fileName = `update-${bookTitle}-${Date.now()}${extname(file.originalname)}`;
           callback(null, fileName);
         },
@@ -84,7 +84,7 @@ export class BookController {
     return this.bookService.updateBook(id, dto, images, baseUrl);
   }
 
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async deleteBook(@Param('id') id: string) {
     return this.bookService.deleteBook(id);

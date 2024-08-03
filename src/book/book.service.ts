@@ -9,8 +9,12 @@ import * as path from 'path';
 export class BookService {
   constructor(private prisma: PrismaService) {}
 
-  async findAllBook() {
+  async findAllBook(page: number = 1, limit: number = 10) {
+    const offset = (page - 1) * limit;
+
     const books = await this.prisma.book.findMany({
+      skip: offset,
+      take: limit,
       include: {
         author: {
           select: {
@@ -35,13 +39,19 @@ export class BookService {
       },
     });
 
+    const total = await this.prisma.book.count();
+
     if (books.length === 0) {
       throw new NotFoundException('No books found');
     }
+
     return {
       message: 'All books',
       data: books,
-      total: books.length,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
     };
   }
 
@@ -270,6 +280,10 @@ export class BookService {
           console.error(`Failed to delete image file: ${filePath}`, err);
         }
       });
+    });
+
+    await this.prisma.order.deleteMany({
+      where: { bookId: id },
     });
 
     await this.prisma.bookGenres.deleteMany({
